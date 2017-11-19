@@ -1,4 +1,4 @@
-app.controller('AccueilCtrl', function($scope, $http){
+app.controller('HomeCtrl', function($scope, $http){
 
     var retrievedData = localStorage.getItem("cart");
     if(retrievedData == null){

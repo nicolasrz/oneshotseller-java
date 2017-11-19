@@ -1,4 +1,4 @@
-app.controller('PanierCtrl', function($scope, $http, $rootScope, $location){
+app.controller('CartCtrl', function($scope, $http, $rootScope, $location){
 
     $scope.init = function(){
         $scope.total = 0;
@@ -13,10 +13,6 @@ app.controller('PanierCtrl', function($scope, $http, $rootScope, $location){
             $scope.getArticles();  
             $scope.chechShowButton();
         }   
-
-
-
-
     }  
 
     $scope.chechShowButton = function(){

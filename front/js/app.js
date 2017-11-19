@@ -2,12 +2,12 @@ var app = angular.module("app", ["ngRoute"]);
 app.config(function($routeProvider) {
     $routeProvider
     .when("/", {
-        controller : "AccueilCtrl",
-        templateUrl : "templates/accueil.html"
+        controller : "HomeCtrl",
+        templateUrl : "templates/home.html"
     })
-    .when("/panier", {
-        controller : "PanierCtrl",
-        templateUrl : "templates/panier.html"
+    .when("/cart", {
+        controller : "CartCtrl",
+        templateUrl : "templates/cart.html"
     })
     .when("/order", {
         controller : "OrderCtrl",
