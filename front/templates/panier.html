@@ -1,0 +1,43 @@
+<div class="ui container margin-top-5">
+	<div ng-if="!showButtonOrder">
+		<p>Votre panier est vide</p>
+		<hr>
+	</div>
+	<div ng-if="showButtonOrder">
+		<table class="ui celled table">
+			<thead>
+				<tr>
+					<th colspan="3">
+						Votre panier
+					</th>
+				</tr></thead>
+				<tbody>
+					<tr ng-repeat="(index, value) in articles">
+						<td class="collapsing">
+							<img ng-src="{{value.image}}" alt="Description" /> 
+						</td>
+						<td>{{value.name}}
+							<br> 
+							{{value.description}}
+							<br>
+							<a href="" class="delete" ng-click="delete(index ,value)">Supprimer</a>
+						</td>
+						<td class="right aligned collapsing">{{value.price}} €</td>
+					</tr>
+
+				</tbody>
+				<tfoot>
+					<tr>
+						<th><strong>Total</strong></th>
+						<th></th>
+						<th class="right aligned collapsing"><strong>{{total}} €</strong>    </th>
+					</tr>
+				</tfoot>
+			</table>
+			<div class="ui container margin-top-5">
+				<button class="ui blue button" ng-click="continue()">Continuer</button>
+			</div>
+		</div>
+	</div>
+
+
