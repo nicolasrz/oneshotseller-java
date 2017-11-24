@@ -1,24 +1,24 @@
 package com.nruiz.oneshot.controllers;
 
-import com.nruiz.oneshot.models.*;
+import com.nruiz.oneshot.models.Address;
+import com.nruiz.oneshot.models.Article;
+import com.nruiz.oneshot.models.CustomResponse;
+import com.nruiz.oneshot.models.Order;
+import com.nruiz.oneshot.models.Stock;
 import com.nruiz.oneshot.repositories.AddressRepository;
 import com.nruiz.oneshot.repositories.ArticleRepository;
 import com.nruiz.oneshot.repositories.OrderRepository;
 import com.nruiz.oneshot.repositories.StockRepository;
-import com.nruiz.oneshot.utils.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Calendar;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Created by Nicolas on 28/10/2017.
  */
-@CrossOrigin(origins = Constants.FRONT_URI)
 @RestController
 @RequestMapping("/order")
 public class OrderController {
