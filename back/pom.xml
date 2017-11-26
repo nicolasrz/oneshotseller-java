@@ -37,6 +37,13 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+        <!-- Stripe lib for payments-->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>5.23.1</version>
+        </dependency>
+
 
          <dependency>
             <groupId>org.projectlombok</groupId>

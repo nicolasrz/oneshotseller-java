@@ -49,6 +49,8 @@ public class OrderController {
 
 
 
+
+
         Order orderToSave = new Order();
         Address delivery  = orderFront.getDelivery();
         delivery = this.addressRepository.save(delivery);
@@ -76,7 +78,9 @@ public class OrderController {
             article = this.articleRepository.save(article);
 
             orderToSave.getArticles().add(article);
+            orderToSave.setTotalPrice(orderToSave.getTotalPrice() + article.getPrice());
         }
+
 
         orderToSave.setCreatedAt(LocalDateTime.now().toString());
         orderToSave = orderRepository.save(orderToSave);

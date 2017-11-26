@@ -33,6 +33,7 @@ public class Order {
     @ManyToMany
     private List<Article> articles = new ArrayList<>();
 
+    private float totalPrice;
 
     private String createdAt;
 
