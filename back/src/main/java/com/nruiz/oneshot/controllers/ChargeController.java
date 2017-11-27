@@ -11,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 public class ChargeController {
 
@@ -18,16 +21,18 @@ public class ChargeController {
     private StripeService paymentsService;
 
     @PostMapping("/charge")
-    public String charge(ChargeRequest chargeRequest, Model model)
+    public Map<String,Object> charge(ChargeRequest chargeRequest, Model model)
             throws StripeException {
+
+        HashMap<String, Object> objectObjectHashMap = new HashMap<>();;
         chargeRequest.setDescription("Example charge");
         chargeRequest.setCurrency(ChargeRequest.Currency.EUR);
         Charge charge = paymentsService.charge(chargeRequest);
-        model.addAttribute("id", charge.getId());
-        model.addAttribute("status", charge.getStatus());
-        model.addAttribute("chargeId", charge.getId());
-        model.addAttribute("balance_transaction", charge.getBalanceTransaction());
-        return "result";
+        objectObjectHashMap.put("id", charge.getId());
+        objectObjectHashMap.put("status", charge.getStatus());
+        objectObjectHashMap.put("chargeId", charge.getId());
+        objectObjectHashMap.put("balance_transaction", charge.getBalanceTransaction());
+        return objectObjectHashMap;
     }
 
     @ExceptionHandler(StripeException.class)

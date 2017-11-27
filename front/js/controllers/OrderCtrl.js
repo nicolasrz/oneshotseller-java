@@ -29,12 +29,18 @@ app.controller('OrderCtrl', function($scope, $http, $rootScope){
 			}
 			$scope.order.articles = articlesObject;
 			$http.post(CONSTANTS.api+"/order/",$scope.order).then(function(response){
-				console.log(response);
+				$scope.order = response.data.object;
+				console.log($scope.order);
+				$('#checkout-modal').modal('show');
 			})
 		}
-		
+	};
 
-
+	$scope.submitPayment = function(){
+		$http.post(CONSTANTS.api+"/charge/",$scope.order).then(function(response){
+				$scope.order = response.data.object;
+				console.log($scope.order);
+			})
 	}
 
 
