@@ -12,7 +12,8 @@ front.url: http://127.0.0.1:8081
 spring.jpa.hibernate.ddl-auto: update
 #12 hours
 #server.session.timeout=43200
-stripe.public.key: public_key
+stripe.public.key: stripe_public_key
+stripe.secret.key: stripe_secret_key
 
 ---
 spring.profiles: prod

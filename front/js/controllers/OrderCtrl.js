@@ -1,11 +1,13 @@
-app.controller('OrderCtrl', function($scope, $http, $rootScope){
+app.controller('OrderCtrl', function($scope, $http, $rootScope,){
 	
 	$scope.getCart = function(){
-        var cart = JSON.parse(localStorage.getItem("cart"));
+		var cart = JSON.parse(localStorage.getItem("cart"));
 
-        return cart;
+		return cart;
 	}
 
+
+	
 
 	$('#facturation').hide();
 	$scope.isRequired = false;
@@ -27,23 +29,41 @@ app.controller('OrderCtrl', function($scope, $http, $rootScope){
 				var newArticle = {id : articles[i] };
 				articlesObject.push(newArticle);
 			}
-			$scope.order.articles = articlesObject;
-			$http.post(CONSTANTS.api+"/order/",$scope.order).then(function(response){
-				$scope.order = response.data.object;
-				console.log($scope.order);
-				$('#checkout-modal').modal('show');
-			})
+
+			if($scope.order != null){
+				$scope.order.articles = articlesObject;
+				$http.post(CONSTANTS.api+"/order/",$scope.order).then(function(response){
+					 var orderInfoToCharge = response.data.object;
+
+					var handler = StripeCheckout.configure({
+						image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+						key : orderInfoToCharge.stripePublicKey,	
+						token: function(token) {
+							var chargeRequest = {
+								currency : orderInfoToCharge.currency,
+								description : "description",
+								amount : orderInfoToCharge.amount,
+								stripeEmail : token.email,
+								stripeToken : token.id
+							}
+							console.log(chargeRequest);
+							$http.post(CONSTANTS.api+"/charge/", chargeRequest).then(function(response){
+								console.log(response);
+							});
+						},
+						locale: 'auto'				
+					});
+
+					handler.open({
+						name: 'Demo Site',
+						description: '2 widgets',
+						zipCode: true,
+						currency: 'eur',
+						amount: orderInfoToCharge.amount,
+						
+					});
+				})
+			}
 		}
 	};
-
-	$scope.submitPayment = function(){
-		$http.post(CONSTANTS.api+"/charge/",$scope.order).then(function(response){
-				$scope.order = response.data.object;
-				console.log($scope.order);
-			})
-	}
-
-
-	
-
 });

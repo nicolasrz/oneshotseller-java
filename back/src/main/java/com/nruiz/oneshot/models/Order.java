@@ -1,14 +1,15 @@
 package com.nruiz.oneshot.models;
 
-import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-
-import javax.persistence.*;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import lombok.Data;
 
 /**
  * Created by Nicolas on 28/10/2017.
@@ -36,8 +37,6 @@ public class Order {
     private float totalPrice;
 
     private String createdAt;
-
-
 
     public Order() {
     }
