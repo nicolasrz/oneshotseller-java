@@ -36,7 +36,10 @@ cd oneshotseller\front
 http-server -p 8081
 
 ```
-
+## NB
+Do not commit your Stripe api keys !
+Do not put them in the front-app.
+That why I use external argument for them.
 
 ## Authors
 
