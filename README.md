@@ -30,12 +30,13 @@ npm install http-server -g
 
 ```
 mvn clean install -f oneshotseller\back
-java -jar oneshotseller\back\target\oneshot-1.0-SNAPSHOT.jar -front.url=http://front.server:8081 -stripe.public.key=mypublickey -stripe.secret.key=mysecretkey
+java -jar oneshotseller\back\target\oneshot-1.0-SNAPSHOT.jar --front.url=http://front.server:8081 --stripe.public.key=mypublickey --stripe.secret.key=mysecretkey
 
 cd oneshotseller\front
 http-server -p 8081
 
 ```
+
 ## NB
 Do not commit your Stripe api keys !
 
