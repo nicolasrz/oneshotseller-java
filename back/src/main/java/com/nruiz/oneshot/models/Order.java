@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -19,6 +21,7 @@ import lombok.Data;
 @Table(name = "Orders")
 public class Order {
 
+    @JsonProperty
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -37,6 +40,12 @@ public class Order {
     private float totalPrice;
 
     private String createdAt;
+
+    private String chargeIdTransaction;
+    private String chargeBalanceTransaction;
+    private String chargeStatusTransaction;
+
+
 
     public Order() {
     }

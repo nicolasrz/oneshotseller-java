@@ -5,11 +5,10 @@ spring.datasource.password: oneshot
 ## Hibernate Properties
 # The SQL dialect makes Hibernate generate better SQL for the chosen database
 spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
-front.url: url.front
+front.url: front.url
 
 # Hibernate ddl auto (create, create-drop, validate, update)
 spring.jpa.hibernate.ddl-auto: update
-#12 hours
-#server.session.timeout=43200
+
 stripe.public.key: stripe_public_key
-stripe.secret.key: stripe_private_key
+stripe.private.key: stripe_private_key

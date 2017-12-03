@@ -1,11 +1,13 @@
 package com.nruiz.oneshot.controllers;
 
 
-import com.nruiz.oneshot.models.ChargeRequest;
+import com.nruiz.oneshot.models.*;
+import com.nruiz.oneshot.services.OrderService;
 import com.nruiz.oneshot.services.StripeService;
+import com.nruiz.oneshot.utils.OneErrorCode;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
-import java.util.HashMap;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,27 +18,50 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/charge")
 public class ChargeController {
 
+    private StripeService stripeService;
+    private OrderService orderService;
 
-    private StripeService paymentsService;
-
-    public ChargeController(StripeService paymentsService) {
-        this.paymentsService = paymentsService;
+    public ChargeController(StripeService stripeService, OrderService orderService) {
+        this.stripeService = stripeService;
+        this.orderService = orderService;
     }
 
     @RequestMapping(value = "/", method= RequestMethod.POST, consumes="application/json")
-    public HashMap<String, String> charge(@RequestBody ChargeRequest chargeRequest)
+    public CustomResponse charge(@RequestBody ChargeRequestOrder chargeRequestOrder)
             throws StripeException {
 
-        HashMap<String, String> map = new HashMap<>();;
+        CustomResponse customResponse = new CustomResponse();
+        customResponse.setSuccess(false);
 
-        Charge charge = paymentsService.charge(chargeRequest);
 
-        map.put("id", charge.getId());
-        map.put("status", charge.getStatus());
-        map.put("chargeId", charge.getId());
-        map.put("balance_transaction", charge.getBalanceTransaction());
-        return map;
+        //Check again in case api called with curl/postman.
+        CustomResponseKey checkOrderFront = this.orderService.checkOrderFront(chargeRequestOrder.getOrder());
+
+
+        if(!checkOrderFront.isSuccess()){
+            return checkOrderFront;
+        }
+        try{
+            Charge charge = this.stripeService.charge(chargeRequestOrder);
+
+            chargeRequestOrder.getOrder().setChargeBalanceTransaction(charge.getBalanceTransaction());
+            chargeRequestOrder.getOrder().setChargeIdTransaction(charge.getId());
+            chargeRequestOrder.getOrder().setChargeStatusTransaction(charge.getStatus());
+
+            customResponse.setSuccess(true);
+            customResponse.setMessage("");
+            customResponse.setObject(chargeRequestOrder.getOrder());
+
+        }catch (StripeException e){
+            System.out.println(e.toString());
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_WHILE_PAYMENT);
+        }
+
+
+        return customResponse;
     }
+
+
 
     @ExceptionHandler(StripeException.class)
     public String handleError(StripeException ex) {

@@ -1,11 +1,10 @@
 package com.nruiz.oneshot.controllers;
 
-import com.nruiz.oneshot.models.ChargeRequest.Currency;
+import com.nruiz.oneshot.models.ChargeRequestOrder;
 import com.nruiz.oneshot.models.CustomResponse;
 import com.nruiz.oneshot.models.Order;
-import com.nruiz.oneshot.models.OrderInfoToCharge;
 import com.nruiz.oneshot.services.OrderService;
-import org.springframework.beans.factory.annotation.Value;
+import com.nruiz.oneshot.utils.OneErrorCode;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,32 +17,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/order")
 public class OrderController {
 
-    @Value("${stripe.public.key}")
-    private String publicKey;
-
     private OrderService orderService;
+
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
-    @RequestMapping(value="/", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public CustomResponse createOrder(@RequestBody Order orderFront){
-
-        if(orderFront.getArticles().isEmpty()){
-            return new CustomResponse(orderFront, "No articles", false);
+    @RequestMapping(value="/save", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public CustomResponse saveOrder(@RequestBody Order order){
+        Order orderToSave = this.orderService.saveNewOrder(order);
+        CustomResponse customResponse = new CustomResponse();
+        if(orderToSave != null){
+            customResponse.setSuccess(true);
+            customResponse.setObject(orderToSave);
+        }else{
+            customResponse.setSuccess(false);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_WHILE_SAVE_ORDER);
         }
 
-        if(orderFront.getDelivery() == null){
-            return new CustomResponse(orderFront, "Delivery address is null", false);
-        }
+        return customResponse;
+    }
 
-        Order orderToSave = this.orderService.saveNewOrder(orderFront);
 
-        int amount = Math.round(orderToSave.getTotalPrice() * 100);
-        OrderInfoToCharge orderInfoToCharge = new OrderInfoToCharge(orderToSave, amount, Currency.EUR.toString(), this.publicKey );
-
-        return new CustomResponse(orderInfoToCharge,"", true);
+    @RequestMapping(value="/check", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public CustomResponse checkOrder(@RequestBody Order orderFront){
+        return this.orderService.checkOrderFront(orderFront);
     }
 
 

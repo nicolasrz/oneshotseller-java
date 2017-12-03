@@ -12,6 +12,7 @@ public class CustomResponse {
     private String message;
     private boolean success;
 
+
     public CustomResponse() {
     }
 
@@ -20,4 +21,7 @@ public class CustomResponse {
         this.message = message;
         this.success = success;
     }
+
+
+
 }
