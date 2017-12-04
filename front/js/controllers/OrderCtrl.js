@@ -1,4 +1,4 @@
-app.controller('OrderCtrl', function($scope, $http, $rootScope,){
+app.controller('OrderCtrl', function($scope, $http, $location){
 	
 	$scope.getCart = function(){
 		var cart = JSON.parse(localStorage.getItem("cart"));
@@ -109,13 +109,11 @@ app.controller('OrderCtrl', function($scope, $http, $rootScope,){
 	};
 
 	$scope.saveOrder = function(order){
-		console.log('save order');
-		console.log(order);
 		$http.post(CONSTANTS.api+"/order/save", order)
 			.then(function(responseOrder){
 				if(responseOrder.data.success){
-					toastr.options = OPTIONS.toastTopCenter;
-					toastr.success("Vous allez recevoir un e-mail de validation. On vous remercie pour votre achat.")
+					$location.path('/thanks');
+					localStorage.removeItem("cart");
 				}else{
 					toastr.options = OPTIONS.toastTopCenter;
 					toastr.error(responseOrder.data.message);
