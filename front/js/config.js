@@ -1,5 +1,5 @@
 var CONSTANTS =
 {
 	// https api.
-	"api" : "http://localhost:8443"
+	"api" : "https://<my.domain>:8443"
 };
