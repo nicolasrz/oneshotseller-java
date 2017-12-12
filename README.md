@@ -30,10 +30,15 @@ npm install http-server -g
 
 ```
 mvn clean install -f oneshotseller\back
-java -jar oneshotseller\back\target\oneshot-1.0-SNAPSHOT.jar --front.url=http://front.server:8081 --stripe.public.key=mypublickey --stripe.secret.key=mysecretkey
+java -jar oneshotseller/back/target/oneshot-1.0-SNAPSHOT.jar \
+--front.url=http://<my.domaine.fr> \
+--stripe.public.key=<public_key> \
+--stripe.secret.key=<private_key> \
+--server.ssl.key-store=<path/to/keystore.p12> \
+--server.ssl.key-store-password=<password_letsencrypt>
 
 cd oneshotseller\front
-http-server -p 8081
+http-server -p 80
 
 ```
 
