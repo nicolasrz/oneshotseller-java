@@ -1,6 +1,7 @@
-package com.nruiz.oneshot.controllers;
+ package com.nruiz.oneshot.controllers;
 
 import com.nruiz.oneshot.models.Article;
+import com.nruiz.oneshot.models.Elem;
 import com.nruiz.oneshot.services.ArticleService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,12 @@ public class ArticleController {
         return new ResponseEntity<>(this.articleService.getArticleById(id), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/", method= RequestMethod.POST, produces="application/json", consumes="application/json")
+    @RequestMapping(value = "/ids", method= RequestMethod.POST, produces="application/json", consumes="application/json")
+    public ResponseEntity<List<Article>> getArticlesByIds(@RequestBody List<Elem> elems){
+        return new ResponseEntity<>(this.articleService.getArticlesByIds(elems), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/save", method= RequestMethod.POST, produces="application/json", consumes="application/json")
     public ResponseEntity<Article> saveArticle(@RequestBody Article article){
         return new ResponseEntity<>(this.articleService.saveArticle(article), HttpStatus.CREATED);
     }
