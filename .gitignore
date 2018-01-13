@@ -2,3 +2,6 @@
 /back/target
 /front/node_modules
 /back/.idea
+/.idea
+/back/src/main/*.iml
+/front/*.iml
