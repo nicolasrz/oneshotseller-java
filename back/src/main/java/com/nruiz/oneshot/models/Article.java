@@ -26,6 +26,8 @@ public class Article {
 
     private String image;
 
+    @Transient
+    private Long index;
     @JsonIgnore
     @OneToOne
     private Stock stock;

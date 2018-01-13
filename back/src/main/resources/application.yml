@@ -1,14 +1,14 @@
 
 ## Default port.
-server.port.http: 8080
+#server.port.http: 8080
 
 ## add HTTPS
-server.port: 8443
-security.require-ssl: true
-server.ssl.key-store: /path/to/letsencrypt/mysite.com/keystore.p12
-server.ssl.key-store-password: myPassword
-server.ssl.keyStoreType: PKCS12
-server.ssl.keyAlias: tomcat
+#server.port: 8443
+#security.require-ssl: true
+#server.ssl.key-store: /path/to/letsencrypt/mysite.com/keystore.p12
+#server.ssl.key-store-password: myPassword
+#server.ssl.keyStoreType: PKCS12
+#server.ssl.keyAlias: tomcat
 
 ## Database
 spring.datasource.url: jdbc:mysql://localhost:3306/oneshot?useSSL=false
@@ -19,7 +19,7 @@ spring.datasource.password: oneshot
 spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
 
 ## for crossorigin
-front.url: front.url
+front.url: http://localhost:3000
 
 # Hibernate ddl auto (create, create-drop, validate, update)
 spring.jpa.hibernate.ddl-auto: update
