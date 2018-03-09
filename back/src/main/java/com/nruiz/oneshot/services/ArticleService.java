@@ -1,6 +1,7 @@
 package com.nruiz.oneshot.services;
 
 import com.nruiz.oneshot.models.Article;
+import com.nruiz.oneshot.models.Elem;
 import com.nruiz.oneshot.repositories.ArticleRepository;
 import com.nruiz.oneshot.repositories.StockRepository;
 import java.util.ArrayList;
@@ -39,10 +40,10 @@ public class ArticleService {
         return this.articleRepository.save(articleToSave);
     }
 
-    public List<Article> getArticlesByIds(List<Long> ids){
+    public List<Article> getArticlesByIds(List<Elem> elems){
         List<Article> articles = new ArrayList<>();
-        for(Long id : ids){
-            articles.add(this.getArticleById(id));
+        for(Elem elem : elems){
+            articles.add(this.getArticleById(elem.getId()));
         }
 
         return articles;

@@ -17,7 +17,7 @@ public class CrossConfiguration extends WebMvcConfigurationSupport {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/**")
-                .allowedOrigins(this.frontUrl)
+                .allowedOrigins("http://localhost:3000")
                 .allowedMethods("GET", "POST")
                 .allowedHeaders("Content-Type")
                 .allowCredentials(false)
