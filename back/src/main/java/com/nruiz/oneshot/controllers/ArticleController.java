@@ -36,4 +36,9 @@ public class ArticleController {
     public ResponseEntity<Article> saveArticle(@RequestBody Article article){
         return new ResponseEntity<>(this.articleService.saveArticle(article), HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/ids", method= RequestMethod.POST, produces="application/json", consumes="application/json")
+    public ResponseEntity<List<Article>> saveArticle(@RequestBody List<Long> ids){
+        return new ResponseEntity<>(this.articleService.getArticlesByIds(ids), HttpStatus.OK);
+    }
 }

@@ -3,6 +3,7 @@ package com.nruiz.oneshot.services;
 import com.nruiz.oneshot.models.Article;
 import com.nruiz.oneshot.repositories.ArticleRepository;
 import com.nruiz.oneshot.repositories.StockRepository;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +37,14 @@ public class ArticleService {
         articleToSave.setStock(this.stockRepository.findOne(article.getStock().getId()));
 
         return this.articleRepository.save(articleToSave);
+    }
+
+    public List<Article> getArticlesByIds(List<Long> ids){
+        List<Article> articles = new ArrayList<>();
+        for(Long id : ids){
+            articles.add(this.getArticleById(id));
+        }
+
+        return articles;
     }
 }
