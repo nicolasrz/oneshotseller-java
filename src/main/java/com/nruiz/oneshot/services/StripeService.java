@@ -38,6 +38,7 @@ public class StripeService {
         APIConnectionException, CardException, APIException {
 
         Order order = chargeRequestOrder.getOrder();
+
         Stripe.apiKey = this.privateKey;
         String token = chargeRequestOrder.getChargeRequest().getStripeToken();
 
@@ -47,13 +48,18 @@ public class StripeService {
         params.put("currency", "eur");
         params.put("source", token);
 
-        StringBuilder sb = getChargeDescription(chargeRequestOrder, order);
+        StringBuilder description = getChargeDescription(chargeRequestOrder, order);
+        params.put("description", description.toString());
 
-        params.put("description", sb.toString());
+        HashMap<String, String> metadata = createMetadatas(order);
+        params.put("metadata", metadata);
 
+        Charge charge = Charge.create(params);
 
+        return charge;
+    }
 
-
+    private HashMap<String, String> createMetadatas(Order order) {
         //Create metadatas to have order information in Stripe DashBoard
         HashMap<String, String> metadata = new HashMap<>();
 
@@ -75,13 +81,6 @@ public class StripeService {
         metadata.put("facturation_city", order.getFacturation().getCity());
         metadata.put("facturation_zipcode", order.getFacturation().getZipcode());
 
-        //Can't do this to recap, cause metadata can only have 23 parameters.
-//        List<Article> articleList = order.getArticles();
-//        for(int i = 0; i < articleList.size();i++){
-//            long id = articleList.get(i).getId();
-//            metadata.put("article "+String.valueOf(i), id+"_"+this.articleRepository.findOne(id).getName());
-//        }
-
         List<Article> articleList = order.getArticles();
         String allIds = "";
         for(Article article : articleList){
@@ -91,12 +90,7 @@ public class StripeService {
 
         metadata.put("totalPrice", Float.toString(order.getTotalPrice()));
         metadata.put("createdAt", order.getCreatedAt());
-
-
-        params.put("metadata", metadata);
-        Charge charge = Charge.create(params);
-
-        return charge;
+        return metadata;
     }
 
     private StringBuilder getChargeDescription(ChargeRequestOrder chargeRequestOrder, Order order) {
@@ -110,8 +104,4 @@ public class StripeService {
         return sb;
     }
 
-
-    public String getPublicKey(){
-        return this.publicKey;
-    }
 }

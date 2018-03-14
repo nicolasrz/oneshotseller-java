@@ -29,6 +29,4 @@ public class OrderController {
         return this.orderService.checkOrderFront(orderFront);
     }
 
-
-
 }
