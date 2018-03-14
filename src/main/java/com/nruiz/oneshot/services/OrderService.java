@@ -105,7 +105,7 @@ public class OrderService {
 
         if(orderFront.getArticles().isEmpty()){
             customResponse.setSuccess(false);
-            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART_FRENCH);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART);
             return customResponse;
         }
 
@@ -119,7 +119,7 @@ public class OrderService {
 
         if(orderFront.getDelivery() == null){
             customResponse.setSuccess(false);
-            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING_FRENCH);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING);
             return customResponse;
         }
 
@@ -128,7 +128,7 @@ public class OrderService {
 
         if(orderFront.getFacturation() == null){
             customResponse.setSuccess(false);
-            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_FACTURATION_MISSING_FRENCH);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_FACTURATION_MISSING);
             return customResponse;
         }
 

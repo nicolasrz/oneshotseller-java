@@ -21,7 +21,7 @@ public class OneErrorCode {
     public static final String ERROR_MESSAGE_DELIVERY_MISSING = "L'adresse de livraison est manquante";
     public static final String ERROR_MESSAGE_FACTURATION_MISSING = "L'adresse de facturation est manquante";
     public static final String ERROR_MESSAGE_ARTICLE_NOT_FOUND = "Un article de votre panier n'est pas reconnu";
-    public static final String ERROR_MESSAGE_WHILE_PAYMENT = "Une erreur s'est produite durant le paiement. Veuillez contacter un administrateur si le problème persiste.";
+    public static final String ERROR_MESSAGE_WHILE_PAYMENT = "Une erreur s'est produite durant le paiement. Votre carte n'a pas été débitée. Veuillez contacter un administrateur si le problème persiste.";
     public static final String ERROR_MESSAGE_WHILE_SAVE_ORDER = "Le paiement est réussi, mais la prise en charge de la commande ne s'est pas passé corrrectement veuillez contacter un administrateur.";
 
 
