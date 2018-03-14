@@ -35,7 +35,7 @@ public class ChargeController {
 
 
         //Check again in case api called with curl/postman.
-        CustomResponseKey checkOrderFront = this.orderService.checkOrderFront(chargeRequestOrder.getOrder());
+        CustomResponse checkOrderFront = this.orderService.checkOrderFront(chargeRequestOrder.getOrder());
 
 
         if(!checkOrderFront.isSuccess()){
@@ -48,9 +48,12 @@ public class ChargeController {
             chargeRequestOrder.getOrder().setChargeIdTransaction(charge.getId());
             chargeRequestOrder.getOrder().setChargeStatusTransaction(charge.getStatus());
 
+            this.orderService.saveNewOrder(chargeRequestOrder);
+
             customResponse.setSuccess(true);
             customResponse.setMessage("");
             customResponse.setObject(chargeRequestOrder.getOrder());
+
 
         }catch (StripeException e){
             System.out.println(e.toString());

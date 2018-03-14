@@ -43,7 +43,9 @@ public class ArticleService {
     public List<Article> getArticlesByIds(List<Elem> elems){
         List<Article> articles = new ArrayList<>();
         for(Elem elem : elems){
-            articles.add(this.getArticleById(elem.getId()));
+            Article article = this.getArticleById(elem.getId());
+            article.setIndex(elem.getIndex());
+            articles.add(article);
         }
 
         return articles;

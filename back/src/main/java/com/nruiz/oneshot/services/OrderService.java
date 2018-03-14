@@ -34,25 +34,25 @@ public class OrderService {
         this.stripeService = stripeService;
     }
 
-    public Order saveNewOrder(Order orderCharge) {
+    public Order saveNewOrder(ChargeRequestOrder orderCharge) {
         Order orderToSave = new Order();
 
-        Address delivery  = orderCharge.getDelivery();
+        Address delivery  = orderCharge.getOrder().getDelivery();
         delivery = this.addressRepository.save(delivery);
         orderToSave.setDelivery(delivery);
 
-        Address facturation = this.getFacturation(orderCharge);
+        Address facturation = this.getFacturation(orderCharge.getOrder());
         facturation = this.addressRepository.save(facturation);
         orderToSave.setFacturation(facturation);
 
-        orderToSave.setEmail(orderCharge.getEmail());
-        orderToSave.setTotalPrice(getTotalPriceFromOrder(orderCharge));
+        orderToSave.setEmail(orderCharge.getOrder().getEmail());
+        orderToSave.setTotalPrice(getTotalPriceFromOrder(orderCharge.getOrder()));
         orderToSave.setCreatedAt(LocalDateTime.now().toString());
-        orderToSave.getArticles().addAll(articleUpdateStock(orderCharge));
+        orderToSave.getArticles().addAll(articleUpdateStock(orderCharge.getOrder()));
 
-        orderToSave.setChargeBalanceTransaction(orderCharge.getChargeBalanceTransaction());
-        orderToSave.setChargeIdTransaction(orderCharge.getChargeIdTransaction());
-        orderToSave.setChargeStatusTransaction(orderCharge.getChargeStatusTransaction());
+        orderToSave.setChargeBalanceTransaction(orderCharge.getOrder().getChargeBalanceTransaction());
+        orderToSave.setChargeIdTransaction(orderCharge.getOrder().getChargeIdTransaction());
+        orderToSave.setChargeStatusTransaction(orderCharge.getOrder().getChargeStatusTransaction());
 
         orderToSave = orderRepository.save(orderToSave);
         return orderToSave;
@@ -99,59 +99,47 @@ public class OrderService {
         return articles;
     }
 
-    public CustomResponseKey checkOrderFront(Order orderFront){
+    public CustomResponse checkOrderFront(Order orderFront){
 
-        CustomResponseKey customResponseKey = new CustomResponseKey();
+        CustomResponse customResponse = new CustomResponse();
 
+        if(orderFront.getArticles().isEmpty()){
+            customResponse.setSuccess(false);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART_FRENCH);
+            return customResponse;
+        }
 
         for(Article article : orderFront.getArticles()){
             if(this.articleRepository.findOne(article.getId()) == null){
-                customResponseKey.setSuccess(false);
-                customResponseKey.setMessage(OneErrorCode.ERROR_MESSAGE_ARTICLE_NOT_FOUND);
-                return customResponseKey;
+                customResponse.setSuccess(false);
+                customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_ARTICLE_NOT_FOUND);
+                return customResponse;
             }
         }
 
-        if(orderFront.getArticles().isEmpty()){
-            customResponseKey.setSuccess(false);
-            customResponseKey.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART_FRENCH);
-            return customResponseKey;
-        }
-
-
-
         if(orderFront.getDelivery() == null){
-            customResponseKey.setSuccess(false);
-            customResponseKey.setMessage(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING_FRENCH);
-            return customResponseKey;
+            customResponse.setSuccess(false);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING_FRENCH);
+            return customResponse;
         }
 
 
         orderFront.setFacturation(this.getFacturation(orderFront));
 
         if(orderFront.getFacturation() == null){
-            customResponseKey.setSuccess(false);
-            customResponseKey.setMessage(OneErrorCode.ERROR_MESSAGE_FACTURATION_MISSING_FRENCH);
-            return customResponseKey;
+            customResponse.setSuccess(false);
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_FACTURATION_MISSING_FRENCH);
+            return customResponse;
         }
 
-        CustomResponse checkApiKeys = this.stripeService.checkStripeKeys();
-
-        if(!checkApiKeys.isSuccess()){
-            customResponseKey.setSuccess(checkApiKeys.isSuccess());
-            customResponseKey.setMessage(checkApiKeys.getMessage());
-            customResponseKey.setObject(checkApiKeys.getObject());
-            return customResponseKey;
-        }
 
         //if the current order request is ok, we return the order with the public key to create the stripe form.
 
-        customResponseKey.setPublicKey(this.stripeService.getPublicKey());
         orderFront.setTotalPrice(this.getTotalPriceFromOrder(orderFront));
-        customResponseKey.setObject(orderFront);
-        customResponseKey.setMessage("");
-        customResponseKey.setSuccess(true);
+        customResponse.setObject(orderFront);
+        customResponse.setMessage("");
+        customResponse.setSuccess(true);
 
-        return customResponseKey;
+        return customResponse;
     }
 }

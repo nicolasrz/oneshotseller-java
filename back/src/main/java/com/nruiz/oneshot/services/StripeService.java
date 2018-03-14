@@ -110,30 +110,6 @@ public class StripeService {
         return sb;
     }
 
-    public CustomResponse checkStripeKeys(){
-        CustomResponse customResponse = new CustomResponse();
-        customResponse.setSuccess(true);
-
-        if(this.publicKey.equals(OneConstants.STRIPE_PUBLIC_KEY)){
-            customResponse.setObject(new OneErrorCode(
-                    OneErrorCode.ERROR_CODE_001,
-                    OneErrorCode.ADMINISTRATOR_MESSAGE_CONTACT_FRENCH));
-
-            customResponse.setMessage(OneErrorCode.ADMINISTRATOR_MESSAGE_CONTACT_FRENCH);
-            customResponse.setSuccess(false);
-        }
-
-        if(this.privateKey.equals(OneConstants.STRIPE_PRIVATE_KEY)){
-            customResponse.setObject( new OneErrorCode(
-                    OneErrorCode.ERROR_CODE_002,
-                    OneErrorCode.ADMINISTRATOR_MESSAGE_CONTACT_FRENCH));
-
-            customResponse.setMessage(OneErrorCode.ADMINISTRATOR_MESSAGE_CONTACT_FRENCH);
-            customResponse.setSuccess(false);
-        }
-
-        return customResponse;
-    }
 
     public String getPublicKey(){
         return this.publicKey;

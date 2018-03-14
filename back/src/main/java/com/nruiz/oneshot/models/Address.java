@@ -1,5 +1,6 @@
 package com.nruiz.oneshot.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import javax.persistence.Id;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
     private long id;
 
     private String firstname;

@@ -24,5 +24,5 @@ front.url: http://localhost:3000
 # Hibernate ddl auto (create, create-drop, validate, update)
 spring.jpa.hibernate.ddl-auto: update
 
-stripe.public.key: stripe_public_key
-stripe.private.key: stripe_private_key
+stripe.public.key: public
+stripe.private.key: private

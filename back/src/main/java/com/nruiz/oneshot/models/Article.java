@@ -28,7 +28,9 @@ public class Article {
 
     @Transient
     private Long index;
+
     @JsonIgnore
     @OneToOne
     private Stock stock;
+
 }

@@ -24,22 +24,6 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @RequestMapping(value="/save", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public CustomResponse saveOrder(@RequestBody Order order){
-        Order orderToSave = this.orderService.saveNewOrder(order);
-        CustomResponse customResponse = new CustomResponse();
-        if(orderToSave != null){
-            customResponse.setSuccess(true);
-            customResponse.setObject(orderToSave);
-        }else{
-            customResponse.setSuccess(false);
-            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_WHILE_SAVE_ORDER);
-        }
-
-        return customResponse;
-    }
-
-
     @RequestMapping(value="/check", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public CustomResponse checkOrder(@RequestBody Order orderFront){
         return this.orderService.checkOrderFront(orderFront);
