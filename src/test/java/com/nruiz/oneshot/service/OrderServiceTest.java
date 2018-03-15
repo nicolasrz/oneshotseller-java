@@ -16,26 +16,29 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(classes = {Application.class})
 @RunWith(SpringRunner.class)
+@DataJpaTest
 @EnableAutoConfiguration
-@ComponentScan("com.nruiz.shop")
+@ComponentScan("com.nruiz.oneshot")
 public class OrderServiceTest {
 
-    @Autowired
+    @Autowired(required = true)
     private OrderService orderService;
 
-    @Autowired
+    @Autowired(required = true)
     private StockService stockService;
 
-    @Autowired
+    @Autowired(required = true)
     private ArticleService articleService;
 
-
+    public OrderServiceTest() {
+    }
 
     //TEST EMAIL
     @Test
@@ -991,28 +994,6 @@ public class OrderServiceTest {
     }
 
 
-
-
-//    @Test
-//    public void checkOrderFrontCartShouldBeNotEmpty(){
-//        Order order = new Order();
-//        order.setEmail("test@test.fr");
-//
-//        Stock stock = stockService.createStock(100);
-//
-//        Article article = new Article();
-//        article.setDescription("description");
-//        article.setName("test");
-//        article.setPrice(12.99f);
-//        article.setImage("image");
-//        article.setStock(stock);
-//        article = articleService.saveArticle(article);
-//        order.getArticles().add(article);
-//
-//        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-//        assertEquals(null, customResponse.getMessage());
-//        assertEquals(true, customResponse.isSuccess());
-//    }
 
 
 }

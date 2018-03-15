@@ -1,18 +1,21 @@
 package com.nruiz.oneshot.services;
 
 
-import com.nruiz.oneshot.models.*;
+import com.nruiz.oneshot.models.Address;
+import com.nruiz.oneshot.models.Article;
+import com.nruiz.oneshot.models.ChargeRequestOrder;
+import com.nruiz.oneshot.models.CustomResponse;
+import com.nruiz.oneshot.models.Order;
+import com.nruiz.oneshot.models.Stock;
 import com.nruiz.oneshot.repositories.AddressRepository;
 import com.nruiz.oneshot.repositories.ArticleRepository;
 import com.nruiz.oneshot.repositories.OrderRepository;
 import com.nruiz.oneshot.repositories.StockRepository;
 import com.nruiz.oneshot.utils.OneErrorCode;
-import javax.websocket.OnError;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
@@ -23,16 +26,14 @@ public class OrderService {
     private AddressRepository addressRepository;
     private ArticleRepository articleRepository;
     private StockRepository stockRepository;
-    private StripeService stripeService;
 
     public OrderService(OrderRepository orderRepository,
                         AddressRepository addressRepository, ArticleRepository articleRepository,
-                        StockRepository stockRepository, StripeService stripeService) {
+                        StockRepository stockRepository) {
         this.orderRepository = orderRepository;
         this.addressRepository = addressRepository;
         this.articleRepository = articleRepository;
         this.stockRepository = stockRepository;
-        this.stripeService = stripeService;
     }
 
     public CustomResponse saveNewOrder(ChargeRequestOrder orderCharge) {

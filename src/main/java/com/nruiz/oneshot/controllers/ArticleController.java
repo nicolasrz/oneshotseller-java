@@ -40,7 +40,7 @@ public class ArticleController {
 
     @RequestMapping(value = "/ids", method= RequestMethod.POST, produces="application/json", consumes="application/json")
     public ResponseEntity<List<Article>> getArticlesByIds(@RequestBody List<Elem> elems){
-        return new ResponseEntity<>(this.articleService.getArticlesByIds(elems), HttpStatus.OK);
+        return new ResponseEntity<>(this.articleService.getArticlesByElems(elems), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces="application/json", consumes="application/json")

@@ -25,7 +25,11 @@ public class ArticleService {
     }
 
     public Article getArticleById(long id){
-        return this.articleRepository.findOne(id);
+        Article article = this.articleRepository.findOne(id);
+        if(article == null){
+            return new Article();
+        }
+        return article;
     }
 
     public Article saveArticle(Article article){
@@ -40,7 +44,7 @@ public class ArticleService {
         return this.articleRepository.save(articleToSave);
     }
 
-    public List<Article> getArticlesByIds(List<Elem> elems){
+    public List<Article> getArticlesByElems(List<Elem> elems){
         List<Article> articles = new ArrayList<>();
         for(Elem elem : elems){
             Article article = this.getArticleById(elem.getId());
