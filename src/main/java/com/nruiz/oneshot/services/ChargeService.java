@@ -23,7 +23,6 @@ public class ChargeService {
         CustomResponse customResponse = new CustomResponse();
         customResponse.setSuccess(false);
 
-
         //Check again in case api called with curl/postman.
         CustomResponse checkOrderFrontResponse = this.orderService.checkOrderFront(chargeRequestOrder.getOrder());
 
