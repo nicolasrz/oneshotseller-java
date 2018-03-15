@@ -25,13 +25,15 @@ public class ChargeService {
 
 
         //Check again in case api called with curl/postman.
-        CustomResponse checkOrderFront = this.orderService.checkOrderFront(chargeRequestOrder.getOrder());
+        CustomResponse checkOrderFrontResponse = this.orderService.checkOrderFront(chargeRequestOrder.getOrder());
 
 
-        if(!checkOrderFront.isSuccess()){
-            return checkOrderFront;
+        if(!checkOrderFrontResponse.isSuccess()){
+            return checkOrderFrontResponse;
         }
+
         try{
+            chargeRequestOrder.getOrder().setTotalPrice(this.orderService.getTotalPriceFromOrder(chargeRequestOrder.getOrder()));
             Charge charge = this.stripeService.charge(chargeRequestOrder);
 
             chargeRequestOrder.getOrder().setChargeBalanceTransaction(charge.getBalanceTransaction());

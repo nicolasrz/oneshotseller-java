@@ -7,6 +7,7 @@ import com.nruiz.oneshot.repositories.ArticleRepository;
 import com.nruiz.oneshot.repositories.OrderRepository;
 import com.nruiz.oneshot.repositories.StockRepository;
 import com.nruiz.oneshot.utils.OneErrorCode;
+import javax.websocket.OnError;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,28 +35,83 @@ public class OrderService {
         this.stripeService = stripeService;
     }
 
-    public Order saveNewOrder(ChargeRequestOrder orderCharge) {
+    public CustomResponse saveNewOrder(ChargeRequestOrder orderCharge) {
+        CustomResponse customResponse = new CustomResponse();
+        customResponse.setSuccess(false);
+
         Order orderToSave = new Order();
 
         Address delivery  = orderCharge.getOrder().getDelivery();
         delivery = this.addressRepository.save(delivery);
         orderToSave.setDelivery(delivery);
 
+
         Address facturation = this.getFacturation(orderCharge.getOrder());
         facturation = this.addressRepository.save(facturation);
         orderToSave.setFacturation(facturation);
-
         orderToSave.setEmail(orderCharge.getOrder().getEmail());
-        orderToSave.setTotalPrice(getTotalPriceFromOrder(orderCharge.getOrder()));
+
+        float totalPrice = this.getTotalPriceFromOrder(orderCharge.getOrder());
+        orderToSave.setTotalPrice(totalPrice);
+
         orderToSave.setCreatedAt(LocalDateTime.now().toString());
         orderToSave.getArticles().addAll(articleUpdateStock(orderCharge.getOrder()));
 
+
+        //@TODO dont forget to check that
         orderToSave.setChargeBalanceTransaction(orderCharge.getOrder().getChargeBalanceTransaction());
         orderToSave.setChargeIdTransaction(orderCharge.getOrder().getChargeIdTransaction());
         orderToSave.setChargeStatusTransaction(orderCharge.getOrder().getChargeStatusTransaction());
 
         orderToSave = orderRepository.save(orderToSave);
-        return orderToSave;
+
+        if(orderToSave == null){
+            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_WHILE_SAVE_ORDER);
+            return customResponse;
+        }
+        customResponse.setSuccess(true);
+        customResponse.setObject(orderToSave);
+        return customResponse;
+    }
+
+    private CustomResponse checkAddress(CustomResponse customResponse, Address delivery) {
+        if(delivery.getCity() == null || delivery.getCity().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_CITY_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+
+        if(delivery.getFirstname() == null || delivery.getFirstname().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_FIRSTNAME_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+
+        if(delivery.getLastname() == null || delivery.getLastname().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_LASTNAME_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+
+        if(delivery.getNumber() == null || delivery.getNumber().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_NUMBER_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+        if(delivery.getStreet() == null || delivery.getStreet().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_STREET_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+
+        if(delivery.getZipcode() == null || delivery.getZipcode().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_ZIPCODE_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+
+        customResponse.setSuccess(true);
+        return customResponse;
     }
 
     private List<Article> articleUpdateStock(Order orderFront) {
@@ -71,7 +127,7 @@ public class OrderService {
         return articlesChecked;
     }
 
-    private float getTotalPriceFromOrder(Order orderFront) {
+    public float getTotalPriceFromOrder(Order orderFront) {
         float totalPrice = 0;
         for(Article articleFront : orderFront.getArticles()){
             Article article  = this.articleRepository.findOne(articleFront.getId());
@@ -102,40 +158,53 @@ public class OrderService {
     public CustomResponse checkOrderFront(Order orderFront){
 
         CustomResponse customResponse = new CustomResponse();
+        customResponse.setSuccess(false);
+
+        if(orderFront.getEmail() == null ||orderFront.getEmail().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_EMAIL_MISSING);
+            return customResponse;
+        }
 
         if(orderFront.getArticles().isEmpty()){
-            customResponse.setSuccess(false);
             customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART);
             return customResponse;
         }
 
         for(Article article : orderFront.getArticles()){
             if(this.articleRepository.findOne(article.getId()) == null){
-                customResponse.setSuccess(false);
                 customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_ARTICLE_NOT_FOUND);
                 return customResponse;
             }
         }
 
         if(orderFront.getDelivery() == null){
-            customResponse.setSuccess(false);
             customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING);
             return customResponse;
+        }
+
+        CustomResponse checkAddressDeliveryResponse = checkAddress(customResponse, orderFront.getDelivery());
+
+        if(!checkAddressDeliveryResponse.isSuccess()){
+            return checkAddressDeliveryResponse;
         }
 
 
         orderFront.setFacturation(this.getFacturation(orderFront));
 
-        if(orderFront.getFacturation() == null){
-            customResponse.setSuccess(false);
-            customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_FACTURATION_MISSING);
+
+        CustomResponse checkAddressFacturationResponse = checkAddress(customResponse, orderFront.getFacturation());
+        if(!checkAddressFacturationResponse.isSuccess()){
+            return checkAddressFacturationResponse;
+        }
+
+        float totalPrice = this.getTotalPriceFromOrder(orderFront);
+        if(totalPrice == 0f || totalPrice < 0f){
+            customResponse.setMessage(OneErrorCode.ERROR_TOTALPRICE_NULL);
             return customResponse;
         }
 
-
-        //if the current order request is ok, we return the order with the public key to create the stripe form.
-
         orderFront.setTotalPrice(this.getTotalPriceFromOrder(orderFront));
+
         customResponse.setObject(orderFront);
         customResponse.setMessage("");
         customResponse.setSuccess(true);
