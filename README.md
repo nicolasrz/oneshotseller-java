@@ -16,7 +16,6 @@ An application using Java and Angularjs/React for a quick e-shop, using Stripe f
 ```
 Java 8
 Maven
-Nodejs / npm
 Mysql DB
 Have a Stripe account and api keys.
 ```
