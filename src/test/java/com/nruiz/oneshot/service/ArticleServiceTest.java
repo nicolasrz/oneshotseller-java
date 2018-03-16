@@ -105,8 +105,6 @@ public class ArticleServiceTest {
         article1.setPrice(100f);
         article1.setName("name");
         article1.setDescription("description");
-        article1.setId(1);
-
 
         Article article2 = new Article();
 
@@ -116,17 +114,16 @@ public class ArticleServiceTest {
         article2.setPrice(100f);
         article2.setName("name");
         article2.setDescription("description");
-        article2.setId(1);
 
         article1 = this.articleService.saveArticle(article1);
         article2 = this.articleService.saveArticle(article2);
 
         Elem elem1 = new Elem();
-        elem1.setId((long) 1);
+        elem1.setId(article1.getId());
         elem1.setIndex((long) 4);
 
         Elem elem2 = new Elem();
-        elem2.setId((long) 2);
+        elem2.setId(article2.getId());
         elem2.setIndex((long) 5);
 
         List<Elem> elems = new ArrayList<>();
