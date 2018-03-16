@@ -11,7 +11,7 @@
 #server.ssl.keyAlias: tomcat
 
 ## Database
-spring.datasource.url: jdbc:mysql://localhost:3306/oneshot?useSSL=false
+spring.datasource.url: jdbc:mysql://localhost:3306/oneshot?useSSL=true
 spring.datasource.username: oneshot
 spring.datasource.password: oneshot
 ## Hibernate Properties
