@@ -234,7 +234,6 @@ public class OrderService {
 
         orderFront.setTotalPrice(this.getTotalPriceFromOrder(orderFront));
 
-        customResponse.setObject(orderFront);
         customResponse.setMessage("");
         customResponse.setSuccess(true);
 
