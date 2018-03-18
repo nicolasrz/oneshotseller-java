@@ -1,5 +1,6 @@
 package com.nruiz.oneshot.controllers;
 
+import com.nruiz.oneshot.models.Article;
 import com.nruiz.oneshot.models.ChargeRequestOrder;
 import com.nruiz.oneshot.models.CustomResponse;
 import com.nruiz.oneshot.models.Order;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Created by Nicolas on 28/10/2017.
@@ -27,6 +30,12 @@ public class OrderController {
     @RequestMapping(value="/check", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public CustomResponse checkOrder(@RequestBody Order orderFront){
         return this.orderService.checkOrderFront(orderFront);
+    }
+
+
+    @RequestMapping(value="/totalPrice", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public CustomResponse totalPrice(@RequestBody List<Article> articles){
+        return this.orderService.getTotalPriceArticleIds(articles);
     }
 
 }

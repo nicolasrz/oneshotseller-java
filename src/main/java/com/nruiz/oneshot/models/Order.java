@@ -34,13 +34,16 @@ public class Order {
 
     private String email;
 
+    private String phoneNumber;
+
     @ManyToMany
     private List<Article> articles = new ArrayList<>();
 
-    private float totalPrice;
+    private String totalPrice;
 
     private String createdAt;
 
+    private String chargeToken;
     private String chargeIdTransaction;
     private String chargeBalanceTransaction;
     private String chargeStatusTransaction;

@@ -44,9 +44,11 @@ public class StripeService {
 
         Map<String, Object> params = new HashMap<String, Object>();
 
-        params.put("amount", chargeRequestOrder.getChargeRequest().getAmount());
+        params.put("amount", chargeRequestOrder.getOrder().getTotalPrice());
         params.put("currency", "eur");
         params.put("source", token);
+
+
 
         StringBuilder description = getChargeDescription(chargeRequestOrder, order);
         params.put("description", description.toString());
@@ -68,8 +70,12 @@ public class StripeService {
         metadata.put("delivery_firstname", order.getDelivery().getFirstname());
         metadata.put("delivery_lastname", order.getDelivery().getLastname());
         metadata.put("delivery_number", order.getDelivery().getNumber());
+
         metadata.put("delivery_street", order.getDelivery().getStreet());
-        metadata.put("delivery_complement", order.getDelivery().getComplement());
+        if(!order.getDelivery().getComplement().isEmpty() && order.getDelivery().getComplement() != null){
+            metadata.put("delivery_complement", order.getDelivery().getComplement());
+        }
+
         metadata.put("delivery_city", order.getDelivery().getCity());
         metadata.put("delivery_zipcode", order.getDelivery().getZipcode());
 
@@ -77,29 +83,32 @@ public class StripeService {
         metadata.put("facturation_lastname", order.getFacturation().getLastname());
         metadata.put("facturation_number", order.getFacturation().getNumber());
         metadata.put("facturation_street", order.getFacturation().getStreet());
-        metadata.put("facturation_complement", order.getFacturation().getComplement());
+
+        if(!order.getFacturation().getComplement().isEmpty() && order.getFacturation().getComplement() != null){
+            metadata.put("facturation_complement", order.getFacturation().getComplement());
+        }
+
         metadata.put("facturation_city", order.getFacturation().getCity());
         metadata.put("facturation_zipcode", order.getFacturation().getZipcode());
 
         List<Article> articleList = order.getArticles();
-        String allIds = "";
+        String articleInfo = "";
         for(Article article : articleList){
-            allIds += "_"+String.valueOf(article.getId());
+            articleInfo += article.getId()+"-"+article.getName()+"-"+String.valueOf(article.getPrice())+";";
         }
-        metadata.put("allIds", allIds);
+        metadata.put("articleInfo", articleInfo);
 
-        metadata.put("totalPrice", Float.toString(order.getTotalPrice()));
-        metadata.put("createdAt", order.getCreatedAt());
+        metadata.put("totalPrice", order.getTotalPrice());
         return metadata;
     }
 
     private StringBuilder getChargeDescription(ChargeRequestOrder chargeRequestOrder, Order order) {
         StringBuilder sb = new StringBuilder();
         sb.append("Charge from ");
-        sb.append(chargeRequestOrder.getChargeRequest().getStripeEmail());
+        sb.append(chargeRequestOrder.getOrder().getEmail());
         sb.append(OneConstants.SPACE);
         sb.append(order.getFacturation().getFirstname());
-        sb.append(OneConstants.SLASH);
+        sb.append(OneConstants.SPACE);
         sb.append(order.getFacturation().getLastname());
         return sb;
     }

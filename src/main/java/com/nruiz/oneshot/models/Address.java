@@ -23,7 +23,7 @@ public class Address {
     private String lastname;
     private String number;
     private String street;
-    private String complement;
+    private String complement = "";
     private String city;
     private String zipcode;
 

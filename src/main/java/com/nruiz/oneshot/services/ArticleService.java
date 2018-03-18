@@ -4,9 +4,10 @@ import com.nruiz.oneshot.models.Article;
 import com.nruiz.oneshot.models.Elem;
 import com.nruiz.oneshot.repositories.ArticleRepository;
 import com.nruiz.oneshot.repositories.StockRepository;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ArticleService {

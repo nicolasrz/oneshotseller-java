@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class Elem {
-    private Long index;
+    private String index;
     private Long id;
 }

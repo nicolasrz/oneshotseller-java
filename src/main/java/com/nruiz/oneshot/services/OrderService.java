@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+import javax.websocket.OnError;
+
 @Service
 public class OrderService {
 
@@ -52,7 +54,7 @@ public class OrderService {
         orderToSave.setFacturation(facturation);
         orderToSave.setEmail(orderCharge.getOrder().getEmail());
 
-        float totalPrice = this.getTotalPriceFromOrder(orderCharge.getOrder());
+        String totalPrice = this.getTotalPriceFromOrder(orderCharge.getOrder());
         orderToSave.setTotalPrice(totalPrice);
 
         orderToSave.setCreatedAt(LocalDateTime.now().toString());
@@ -128,14 +130,33 @@ public class OrderService {
         return articlesChecked;
     }
 
-    public float getTotalPriceFromOrder(Order orderFront) {
+    public String getTotalPriceFromOrder(Order orderFront) {
         float totalPrice = 0;
         for(Article articleFront : orderFront.getArticles()){
             Article article  = this.articleRepository.findOne(articleFront.getId());
             totalPrice = totalPrice + article.getPrice();
         }
         int amount = Math.round(totalPrice * 100);
-        return amount;
+        return String.valueOf(amount);
+    }
+
+    public CustomResponse getTotalPriceArticleIds(List<Article> articles) {
+        CustomResponse customResponse = new CustomResponse();
+        customResponse.setSuccess(false);
+        float totalPrice = 0f;
+        for(Article article : articles){
+            Article articleFromDatabase  = this.articleRepository.findOne(article.getId());
+
+            if(articleFromDatabase == null){
+                customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_ARTICLE_NOT_FOUND);
+                return customResponse;
+            }
+            totalPrice = totalPrice + articleFromDatabase.getPrice();
+        }
+
+        customResponse.setSuccess(true);
+        customResponse.setObject(totalPrice);
+        return customResponse;
     }
 
     private Address getFacturation(Order orderFront) {
@@ -161,11 +182,6 @@ public class OrderService {
         CustomResponse customResponse = new CustomResponse();
         customResponse.setSuccess(false);
 
-        if(orderFront.getEmail() == null ||orderFront.getEmail().isEmpty()){
-            customResponse.setMessage(OneErrorCode.ERROR_EMAIL_MISSING);
-            return customResponse;
-        }
-
         if(orderFront.getArticles().isEmpty()){
             customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART);
             return customResponse;
@@ -177,6 +193,18 @@ public class OrderService {
                 return customResponse;
             }
         }
+
+        if(orderFront.getEmail() == null ||orderFront.getEmail().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_EMAIL_MISSING);
+            return customResponse;
+        }
+
+        if(orderFront.getPhoneNumber() == null ||orderFront.getPhoneNumber().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_PHONENUMBER_MISSING);
+            return customResponse;
+        }
+
+
 
         if(orderFront.getDelivery() == null){
             customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING);
@@ -198,8 +226,8 @@ public class OrderService {
             return checkAddressFacturationResponse;
         }
 
-        float totalPrice = this.getTotalPriceFromOrder(orderFront);
-        if(totalPrice == 0f || totalPrice < 0f){
+        String totalPrice = this.getTotalPriceFromOrder(orderFront);
+        if(Float.parseFloat(totalPrice) == 0f || Float.parseFloat(totalPrice) < 0f){
             customResponse.setMessage(OneErrorCode.ERROR_TOTALPRICE_NULL);
             return customResponse;
         }

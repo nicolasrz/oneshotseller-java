@@ -1,13 +1,9 @@
 package com.nruiz.oneshot.models;
 
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
 
 /**
  * Created by Nicolas on 28/10/2017.
@@ -27,7 +23,7 @@ public class Article {
     private String image;
 
     @Transient
-    private Long index;
+    private String index;
 
     @JsonIgnore
     @OneToOne

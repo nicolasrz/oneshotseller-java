@@ -25,13 +25,14 @@ public class OneErrorCode {
     public static final String ERROR_MESSAGE_WHILE_SAVE_ORDER = "La prise en charge de la commande ne s'est pas passé corrrectement veuillez contacter un administrateur.";
 
 
-    public static final String ERROR_EMAIL_MISSING = "Le champ e-mail est obligatoire";
+    public static final String ERROR_EMAIL_MISSING = "Le champ E-mail est obligatoire";
+    public static final String ERROR_PHONENUMBER_MISSING = "Le champ Téléphone est obligatoire";
     public static final String ERROR_CITY_MISSING = "Le champ ville est obligatoire";
-    public static final String ERROR_FIRSTNAME_MISSING = "Le champ prénom est obligatoire";
-    public static final String ERROR_LASTNAME_MISSING = "Le champ nom est obligatoire";
-    public static final String ERROR_NUMBER_MISSING = "Le champ numero est obligatoire";
-    public static final String ERROR_STREET_MISSING = "Le champ rue est obligatoire";
-    public static final String ERROR_ZIPCODE_MISSING = "Le champ code postal est obligatoire";
+    public static final String ERROR_FIRSTNAME_MISSING = "Le champ Prénom est obligatoire";
+    public static final String ERROR_LASTNAME_MISSING = "Le champ Nom est obligatoire";
+    public static final String ERROR_NUMBER_MISSING = "Le champ Numero de voie est obligatoire";
+    public static final String ERROR_STREET_MISSING = "Le champ Libellé de voie est obligatoire";
+    public static final String ERROR_ZIPCODE_MISSING = "Le champ Code postal est obligatoire";
     public static final String ERROR_TOTALPRICE_NULL= "Le prix du panier ne peut pas avoir cette valeur.";
 
     private String codeError;
