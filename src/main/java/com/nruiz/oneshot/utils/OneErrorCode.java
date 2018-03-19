@@ -30,7 +30,7 @@ public class OneErrorCode {
     public static final String ERROR_CITY_MISSING = "Le champ ville est obligatoire";
     public static final String ERROR_FIRSTNAME_MISSING = "Le champ Prénom est obligatoire";
     public static final String ERROR_LASTNAME_MISSING = "Le champ Nom est obligatoire";
-    public static final String ERROR_NUMBER_MISSING = "Le champ Numero de voie est obligatoire";
+    public static final String ERROR_NUMBER_MISSING = "Le champ Numéro de voie est obligatoire";
     public static final String ERROR_STREET_MISSING = "Le champ Libellé de voie est obligatoire";
     public static final String ERROR_ZIPCODE_MISSING = "Le champ Code postal est obligatoire";
     public static final String ERROR_TOTALPRICE_NULL= "Le prix du panier ne peut pas avoir cette valeur.";

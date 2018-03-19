@@ -12,6 +12,8 @@ import com.nruiz.oneshot.services.ArticleService;
 import com.nruiz.oneshot.services.OrderService;
 import com.nruiz.oneshot.services.StockService;
 import com.nruiz.oneshot.utils.OneErrorCode;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,37 +42,232 @@ public class OrderServiceTest {
     public OrderServiceTest() {
     }
 
-    //TEST EMAIL
-    @Test
-    public void checkOrderFrontShouldFailedEmailNull(){
+    public Order getFullOrder() {
         Order order = new Order();
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_EMAIL_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
+        order.setEmail("test@test.fr");
+        order.setPhoneNumber("phonenumber");
+
+        Address delivery = new Address();
+        delivery.setZipcode("zipcode");
+        delivery.setStreet("street");
+        delivery.setCity("city");
+        delivery.setNumber("number");
+        delivery.setLastname("lastname");
+        delivery.setFirstname("firstname");
+        delivery.setComplement("complement");
+
+        order.setDelivery(delivery);
+
+        Address facturation = new Address();
+        facturation.setZipcode("zipcode");
+        facturation.setStreet("street");
+        facturation.setCity("city");
+        facturation.setNumber("number");
+        facturation.setLastname("lastname");
+        facturation.setFirstname("firstname");
+        facturation.setComplement("complement");
+
+        order.setFacturation(facturation);
+
+        List<Article> articles = new ArrayList<>();
+        Stock stock = this.stockService.createStock(100);
+        Article article1 = new Article();
+        article1.setDescription("article 1 description");
+        article1.setName("article 1 name");
+        article1.setPrice(12f);
+        article1.setImage("/image.png");
+        article1.setStock(stock);
+
+        Article article2 = new Article();
+        article2.setDescription("article 2 description");
+        article2.setName("article 2 name");
+        article2.setPrice(22f);
+        article2.setImage("/image-article2.png");
+        article2.setStock(stock);
+
+        article1 = this.articleService.saveArticle(article1);
+        article2 = this.articleService.saveArticle(article2);
+
+        articles.add(article1);
+        articles.add(article2);
+
+        order.getArticles().addAll(articles);
+
+        return order;
+
+
     }
 
     @Test
-    public void checkOrderFrontShouldFailedEmailEmpty(){
-        Order order = new Order();
-        order.setEmail("");
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_EMAIL_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
+    public void checkOrderFullOrder() {
+        CustomResponse fullOrderResponse = this.orderService.checkOrderFront(this.getFullOrder());
+        assertEquals(true, fullOrderResponse.isSuccess());
     }
+
+    //TEST EMAIL
+    @Test
+    public void checkOrderFrontEmail() {
+        Order order = this.getFullOrder();
+
+        order.setEmail("");
+        CustomResponse emailEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_EMAIL_MISSING, emailEmptyResponse.getMessage());
+        assertEquals(false, emailEmptyResponse.isSuccess());
+
+        order.setEmail(null);
+        CustomResponse emailNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_EMAIL_MISSING, emailNullResponse.getMessage());
+        assertEquals(false, emailNullResponse.isSuccess());
+
+    }
+
+    //TEST PHONE NUMBER
+    @Test
+    public void checkOrderFrontPhoneNumber() {
+        Order order = this.getFullOrder();
+
+        order.setPhoneNumber("");
+        CustomResponse phoneNumberEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_PHONENUMBER_MISSING, phoneNumberEmptyResponse.getMessage());
+        assertEquals(false, phoneNumberEmptyResponse.isSuccess());
+
+        order.setPhoneNumber(null);
+        CustomResponse phoneNumberNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_PHONENUMBER_MISSING, phoneNumberNullResponse.getMessage());
+        assertEquals(false, phoneNumberNullResponse.isSuccess());
+    }
+
+
+    //TEST DELIVERY
+    @Test
+    public void checkOrderFrontDelivery() {
+        Order order = this.getFullOrder();
+
+        order.setDelivery(null);
+        CustomResponse deliveryNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING, deliveryNullResponse.getMessage());
+        assertEquals(false, deliveryNullResponse.isSuccess());
+
+    }
+
 
     //TEST CART
     @Test
-    public void checkOrderFrontCartShouldBeEmpty(){
+    public void checkOrderFrontCart() {
         Order order = new Order();
-        order.setEmail("test@test.fr");
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_MESSAGE_EMPTY_CART, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
+
+        order.setArticles(new ArrayList<>());
+        CustomResponse cartEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_MESSAGE_EMPTY_CART, cartEmptyResponse.getMessage());
+        assertEquals(false, cartEmptyResponse.isSuccess());
+
+        order.setArticles(null);
+        CustomResponse cartNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_MESSAGE_EMPTY_CART, cartNullResponse.getMessage());
+        assertEquals(false, cartNullResponse.isSuccess());
+    }
+
+    @Test
+    public void checkCityAddress() {
+        Order order = this.getFullOrder();
+
+        order.getDelivery().setCity("");
+        CustomResponse deliveryCityEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_CITY_MISSING, deliveryCityEmptyResponse.getMessage());
+        assertEquals(false, deliveryCityEmptyResponse.isSuccess());
+
+        order.getDelivery().setCity(null);
+        CustomResponse deliveryCityNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_CITY_MISSING, deliveryCityNullResponse.getMessage());
+        assertEquals(false, deliveryCityNullResponse.isSuccess());
+
+    }
+
+
+    @Test
+    public void checkFirstNameAddress() {
+        Order order = this.getFullOrder();
+
+        order.getDelivery().setFirstname("");
+        CustomResponse deliveryFirstnameEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, deliveryFirstnameEmptyResponse.getMessage());
+        assertEquals(false, deliveryFirstnameEmptyResponse.isSuccess());
+
+        order.getDelivery().setFirstname(null);
+        CustomResponse deliveryFirstnameNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, deliveryFirstnameNullResponse.getMessage());
+        assertEquals(false, deliveryFirstnameNullResponse.isSuccess());
+
+    }
+
+    @Test
+    public void checkLastNameAddress() {
+        Order order = this.getFullOrder();
+
+        order.getDelivery().setLastname("");
+        CustomResponse deliveryLastnameEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, deliveryLastnameEmptyResponse.getMessage());
+        assertEquals(false, deliveryLastnameEmptyResponse.isSuccess());
+
+        order.getDelivery().setLastname(null);
+        CustomResponse deliveryLastnameNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, deliveryLastnameNullResponse.getMessage());
+        assertEquals(false, deliveryLastnameNullResponse.isSuccess());
+
+    }
+
+
+    @Test
+    public void checkNumberAddress() {
+        Order order = this.getFullOrder();
+
+        order.getDelivery().setNumber("");
+        CustomResponse deliveryNumberEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, deliveryNumberEmptyResponse.getMessage());
+        assertEquals(false, deliveryNumberEmptyResponse.isSuccess());
+
+        order.getDelivery().setNumber(null);
+        CustomResponse deliveryNumberNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, deliveryNumberNullResponse.getMessage());
+        assertEquals(false, deliveryNumberNullResponse.isSuccess());
+
+    }
+
+    @Test
+    public void checkStreetAddress() {
+        Order order = this.getFullOrder();
+
+        order.getDelivery().setStreet("");
+        CustomResponse deliveryStreetEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_STREET_MISSING, deliveryStreetEmptyResponse.getMessage());
+        assertEquals(false, deliveryStreetEmptyResponse.isSuccess());
+
+        order.getDelivery().setStreet(null);
+        CustomResponse deliveryStreetNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_STREET_MISSING, deliveryStreetNullResponse.getMessage());
+        assertEquals(false, deliveryStreetNullResponse.isSuccess());
+
+    }
+
+    @Test
+    public void checkZipCodeAddress() {
+        Order order = this.getFullOrder();
+
+        order.getDelivery().setZipcode("");
+        CustomResponse deliveryZipcodeEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, deliveryZipcodeEmptyResponse.getMessage());
+        assertEquals(false, deliveryZipcodeEmptyResponse.isSuccess());
+
+        order.getDelivery().setZipcode(null);
+        CustomResponse deliveryZipcodeNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, deliveryZipcodeNullResponse.getMessage());
+        assertEquals(false, deliveryZipcodeNullResponse.isSuccess());
+
     }
 
     //CHECK ORDER FRONT
     @Test
-    public void checkOrderFrontArticleNotFound(){
+    public void checkOrderFrontArticleNotFound() {
         Stock stock = stockService.createStock(100);
 
         Article article = new Article();
@@ -91,909 +288,118 @@ public class OrderServiceTest {
         assertEquals(false, customResponse.isSuccess());
     }
 
-    @Test
-    public void checkOrderFrontDeliveryNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_MESSAGE_DELIVERY_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
 
     @Test
-    public void checkOrderFrontDeliveryCityEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("");
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
+    public void checkOrderFrontWithoutFacturation() {
+        Order order = this.getFullOrder();
+        order.setFacturation(null);
 
         CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_CITY_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontDeliveryCityNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_CITY_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-
-    @Test
-    public void checkOrderFrontDeliveryFirstnameEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontDeliveryFirstnameNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontDeliveryLastnameEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontDeliveryLastnameNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontDeliveryNumberEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontDeliveryNumberNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-
-    @Test
-    public void checkOrderFrontDeliverySteetEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_STREET_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontDeliverySteetNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_STREET_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-
-    @Test
-    public void checkOrderFrontDeliveryZipcodeEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontDeliveryZipcodeNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationCityNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_CITY_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationCityEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-        facturation.setCity("");
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_CITY_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontFacturationFirstnameNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationFirstnameEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-        facturation.setCity("city");
-        facturation.setFirstname("");
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationLastnameNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firsntame");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationLastnameEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("");
-
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationNumberNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationNumberEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-        facturation.setNumber("");
-
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationStreetNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-        facturation.setNumber("100");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_STREET_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-    @Test
-    public void checkOrderFrontFacturationStreetEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-        facturation.setNumber("100");
-        facturation.setStreet("");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_STREET_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontFacturationZipcodeNull(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-        facturation.setNumber("100");
-        facturation.setStreet("street");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontFacturationZipcodeEmpty(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-        facturation.setNumber("100");
-        facturation.setStreet("street");
-        facturation.setZipcode("");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, customResponse.getMessage());
-        assertEquals(false, customResponse.isSuccess());
-    }
-
-
-    @Test
-    public void checkOrderFrontOk(){
-        Stock stock = stockService.createStock(100);
-
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
-
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-        Address facturation = new Address();
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-        order.setFacturation(facturation);
-        facturation.setCity("city");
-        facturation.setFirstname("firstname");
-        facturation.setLastname("lastname");
-        facturation.setNumber("100");
-        facturation.setStreet("street");
-        facturation.setZipcode("33000");
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(order, customResponse.getObject());
-        assertEquals("", customResponse.getMessage());
         assertEquals(true, customResponse.isSuccess());
+    }
+
+
+    @Test
+    public void checkOrderFrontWithFacturationNotCity() {
+        Order order = this.getFullOrder();
+
+        order.getFacturation().setCity("");
+        CustomResponse facturationCityEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_CITY_MISSING, facturationCityEmptyResponse.getMessage());
+        assertEquals(false, facturationCityEmptyResponse.isSuccess());
+
+        order.getFacturation().setCity(null);
+        CustomResponse facturationCityNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_CITY_MISSING, facturationCityNullResponse.getMessage());
+        assertEquals(false, facturationCityNullResponse.isSuccess());
 
     }
 
     @Test
-    public void checkOrderFrontOkWithoutFacturation(){
-        Stock stock = stockService.createStock(100);
+    public void checkOrderFrontWithFacturationNotZipcode() {
+        Order order = this.getFullOrder();
 
-        Article article = new Article();
-        article.setDescription("description");
-        article.setName("test");
-        article.setPrice(12.99f);
-        article.setImage("image");
-        article.setStock(stock);
-        article = articleService.saveArticle(article);
+        order.getFacturation().setZipcode("");
+        CustomResponse facturationZipcodeEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, facturationZipcodeEmptyResponse.getMessage());
+        assertEquals(false, facturationZipcodeEmptyResponse.isSuccess());
 
-
-        Address delivery = new Address();
-        delivery.setCity("city");
-        delivery.setFirstname("firsntame");
-        delivery.setLastname("lastname");
-        delivery.setNumber("10");
-        delivery.setStreet("street");
-        delivery.setZipcode("65000");
-
-
-        Order order = new Order();
-        order.setEmail("test@test.fr");
-        order.getArticles().add(article);
-        order.setDelivery(delivery);
-
-        CustomResponse customResponse = this.orderService.checkOrderFront(order);
-        assertEquals(order, customResponse.getObject());
-        assertEquals("", customResponse.getMessage());
-        assertEquals(true, customResponse.isSuccess());
+        order.getFacturation().setZipcode(null);
+        CustomResponse facturationZipcodeNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_ZIPCODE_MISSING, facturationZipcodeNullResponse.getMessage());
+        assertEquals(false, facturationZipcodeNullResponse.isSuccess());
 
     }
 
+    @Test
+    public void checkOrderFrontWithFacturationNotStreet() {
+        Order order = this.getFullOrder();
 
+        order.getFacturation().setStreet("");
+        CustomResponse facturationStreetEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_STREET_MISSING, facturationStreetEmptyResponse.getMessage());
+        assertEquals(false, facturationStreetEmptyResponse.isSuccess());
 
+        order.getFacturation().setStreet(null);
+        CustomResponse facturationStreetNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_STREET_MISSING, facturationStreetNullResponse.getMessage());
+        assertEquals(false, facturationStreetNullResponse.isSuccess());
+    }
 
+    @Test
+    public void checkOrderFrontWithFacturationNotNumber() {
+        Order order = this.getFullOrder();
+
+        order.getFacturation().setNumber("");
+        CustomResponse facturationNumberEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, facturationNumberEmptyResponse.getMessage());
+        assertEquals(false, facturationNumberEmptyResponse.isSuccess());
+
+        order.getFacturation().setNumber(null);
+        CustomResponse facturationNumberNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_NUMBER_MISSING, facturationNumberNullResponse.getMessage());
+        assertEquals(false, facturationNumberNullResponse.isSuccess());
+
+    }
+
+    @Test
+    public void checkOrderFrontWithFacturationNotLastname() {
+        Order order = this.getFullOrder();
+
+        order.getFacturation().setLastname("");
+        CustomResponse facturationLastnameEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, facturationLastnameEmptyResponse.getMessage());
+        assertEquals(false, facturationLastnameEmptyResponse.isSuccess());
+
+        order.getFacturation().setLastname(null);
+        CustomResponse facturationLastnameNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_LASTNAME_MISSING, facturationLastnameNullResponse.getMessage());
+        assertEquals(false, facturationLastnameNullResponse.isSuccess());
+
+    }
+
+    @Test
+    public void checkOrderFrontWithFacturationNotFirstname() {
+        Order order = this.getFullOrder();
+
+        order.getFacturation().setFirstname("");
+        CustomResponse facturationFirstnameEmptyResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, facturationFirstnameEmptyResponse.getMessage());
+        assertEquals(false, facturationFirstnameEmptyResponse.isSuccess());
+
+        order.getFacturation().setFirstname(null);
+        CustomResponse facturationFirstnameNullResponse = this.orderService.checkOrderFront(order);
+        assertEquals(OneErrorCode.ERROR_FIRSTNAME_MISSING, facturationFirstnameNullResponse.getMessage());
+        assertEquals(false, facturationFirstnameNullResponse.isSuccess());
+
+    }
+
+    @Test
+    public void checkOrderFrontTotalPriceWrong(){
+        Order order =  this.getFullOrder();
+        order.setTotalPrice("-1");
+
+        CustomResponse customResponse = this.orderService.checkOrderFront(order);
+        assertEquals(true, customResponse.isSuccess());
+    }
 }

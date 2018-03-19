@@ -120,11 +120,11 @@ public class ArticleServiceTest {
 
         Elem elem1 = new Elem();
         elem1.setId(article1.getId());
-        elem1.setIndex((long) 4);
+        elem1.setIndex("4");
 
         Elem elem2 = new Elem();
         elem2.setId(article2.getId());
-        elem2.setIndex((long) 5);
+        elem2.setIndex("5");
 
         List<Elem> elems = new ArrayList<>();
         elems.add(elem1);

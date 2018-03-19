@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-import javax.websocket.OnError;
-
 @Service
 public class OrderService {
 
@@ -78,12 +76,6 @@ public class OrderService {
     }
 
     private CustomResponse checkAddress(CustomResponse customResponse, Address delivery) {
-        if(delivery.getCity() == null || delivery.getCity().isEmpty()){
-            customResponse.setMessage(OneErrorCode.ERROR_CITY_MISSING);
-            customResponse.setSuccess(false);
-            return customResponse;
-        }
-
         if(delivery.getFirstname() == null || delivery.getFirstname().isEmpty()){
             customResponse.setMessage(OneErrorCode.ERROR_FIRSTNAME_MISSING);
             customResponse.setSuccess(false);
@@ -101,6 +93,7 @@ public class OrderService {
             customResponse.setSuccess(false);
             return customResponse;
         }
+
         if(delivery.getStreet() == null || delivery.getStreet().isEmpty()){
             customResponse.setMessage(OneErrorCode.ERROR_STREET_MISSING);
             customResponse.setSuccess(false);
@@ -109,6 +102,12 @@ public class OrderService {
 
         if(delivery.getZipcode() == null || delivery.getZipcode().isEmpty()){
             customResponse.setMessage(OneErrorCode.ERROR_ZIPCODE_MISSING);
+            customResponse.setSuccess(false);
+            return customResponse;
+        }
+
+        if(delivery.getCity() == null || delivery.getCity().isEmpty()){
+            customResponse.setMessage(OneErrorCode.ERROR_CITY_MISSING);
             customResponse.setSuccess(false);
             return customResponse;
         }
@@ -182,7 +181,7 @@ public class OrderService {
         CustomResponse customResponse = new CustomResponse();
         customResponse.setSuccess(false);
 
-        if(orderFront.getArticles().isEmpty()){
+        if(orderFront.getArticles() == null || orderFront.getArticles().isEmpty() ){
             customResponse.setMessage(OneErrorCode.ERROR_MESSAGE_EMPTY_CART);
             return customResponse;
         }
@@ -220,6 +219,9 @@ public class OrderService {
 
         orderFront.setFacturation(this.getFacturation(orderFront));
 
+        if (isFacturationEmpty(orderFront)) {
+            orderFront.setFacturation(orderFront.getDelivery());
+        }
 
         CustomResponse checkAddressFacturationResponse = checkAddress(customResponse, orderFront.getFacturation());
         if(!checkAddressFacturationResponse.isSuccess()){
@@ -227,16 +229,30 @@ public class OrderService {
         }
 
         String totalPrice = this.getTotalPriceFromOrder(orderFront);
+
         if(Float.parseFloat(totalPrice) == 0f || Float.parseFloat(totalPrice) < 0f){
             customResponse.setMessage(OneErrorCode.ERROR_TOTALPRICE_NULL);
             return customResponse;
         }
 
-        orderFront.setTotalPrice(this.getTotalPriceFromOrder(orderFront));
+        orderFront.setTotalPrice(totalPrice);
 
         customResponse.setMessage("");
         customResponse.setSuccess(true);
 
         return customResponse;
+    }
+
+    private boolean isFacturationEmpty(Order orderFront) {
+        if(orderFront.getFacturation().getZipcode() == null
+            && orderFront.getFacturation().getStreet() == null
+            && orderFront.getFacturation().getNumber() == null
+            && orderFront.getFacturation().getLastname() == null
+            && orderFront.getFacturation().getFirstname() == null
+            && orderFront.getFacturation().getCity() == null
+            ){
+            return true;
+        }
+        return false;
     }
 }
